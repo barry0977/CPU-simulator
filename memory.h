@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-
+#include <iomanip>
 int TokenToInt(std::string str){
     int ans=0;
     if(str[1]>='0'&&str[1]<='9'){
@@ -16,10 +16,11 @@ int TokenToInt(std::string str){
         ans+=str[1]-'A'+10;
     }
     if(str[0]>='0'&&str[0]<='9'){
-        ans+=(str[1]-'0')*;
+        ans+=(str[0]-'0')<<4;
     }else{
-        ans+=str[1]-'A'+10;
+        ans+=(str[0]-'A'+10)<<4;
     }
+    return ans;
 }
 
 class Memory{
@@ -43,10 +44,24 @@ public:
                 int value=0;
                 while(iss>>token){
                     cnt++;
-                    value+=
+                    value+= TokenToInt(token)<<8*(cnt-1);
+                    if(cnt==4){
+                        write_word(value,place);
+                        std::cout<< std::hex << std::setfill('0') << std::setw(8)<<value<<std::endl;
+                        place+=4;
+                        cnt=value=0;
+                    }
                 }
             }
         }
+    }
+
+    void write_word(int &data,int index){
+        memory[index]=data;
+    }
+
+    void read_word(int &data,int index){
+        data=memory[index];
     }
 };
 
