@@ -16,6 +16,14 @@ public:
         value[rear]=data;
     }
 
+    int get_head(){
+        return (front+1)%cap;
+    }
+
+    int get_tail(){
+        return (rear+1)%cap;
+    }
+
     T pop(){
         front=(front+1)%cap;
         return value[front];
@@ -35,6 +43,14 @@ public:
 
     bool empty(){
         return front==rear;
+    }
+
+    T& operator[](int index){
+        return value[index];
+    }
+
+    void clear(){
+        rear=front;
     }
 };
 

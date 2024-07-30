@@ -13,9 +13,10 @@ const int rd_=0b11111<<7;
 InstructionUnit decode(int ins){
     InstructionUnit ans;
     Instr op;
-    int rs1,rs2,imm;
+    unsigned int rs1,rs2,rd,imm;
     rs1=(ins>>15)&0b11111;
     rs2=(ins>>20)&0b11111;
+    rd=(ins>>7)&0b11111;
     int funct3=(ins>>12)&0b111;
     int funct7=(ins>>25)&0b1111111;
 
@@ -130,14 +131,70 @@ InstructionUnit decode(int ins){
     }
 
     if(ins==0x0ff00513){
-        op=End;
+        op=Exit;
     }
 
     ans.ins=op;
     ans.rs1=rs1;
     ans.rs2=rs2;
+    ans.imm=imm;
+    ans.rd=rd;
+}
+
+RoBtype get_RoBtype(Instr op){
+    RoBtype ans;
+    switch (op) {
+        case Lui:
+        case Auipc:
+        case Jal:
+        case Jalr:
+        case Lb:
+        case Lh:
+        case Lw:
+        case Lbu:
+        case Lhu:
+        case Addi:
+        case Slti:
+        case Sltiu:
+        case Xori:
+        case Ori:
+        case Andi:
+        case Slli:
+        case Srli:
+        case Srai:
+        case Add:
+        case Sub:
+        case Sll:
+        case Slt:
+        case Sltu:
+        case Xor:
+        case Srl:
+        case Sra:
+        case Or:
+        case And: ans=toreg;
+            break;
+        case Beq:
+        case Bne:
+        case Blt:
+        case Bge:
+        case Bltu:
+        case Bgeu:ans=tobranch;
+            break;
+        case Sb:
+        case Sh:
+        case Sw:ans=tomem;
+            break;
+        case Exit:ans=exit_;
+            break;
+    }
+    return ans;
+};
+
+void func_lui(){
 
 }
 
+void func_auipc(){
 
+}
 #endif //CODE_DECODE_H

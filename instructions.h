@@ -7,6 +7,13 @@
 #define CODE_INSTRUCTIONS_H
 #include "memory.h"
 
+enum RoBtype{
+    toreg,
+    tomem,
+    tobranch,
+    exit_,
+};
+
 enum Instr{
     Lui,
     Auipc,
@@ -45,7 +52,7 @@ enum Instr{
     Sra,
     Or,
     And,
-    End
+    Exit
 };
 
 class InstructionUnit{
@@ -58,7 +65,7 @@ public:
 
 public:
     void execute(Memory *mem){
-        int tmp;
+        unsigned int tmp;
         mem->read_word(tmp,PC);
 
     }

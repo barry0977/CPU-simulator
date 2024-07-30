@@ -8,8 +8,8 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-int TokenToInt(std::string str){
-    int ans=0;
+unsigned int TokenToInt(std::string str){
+    unsigned int ans=0;
     if(str[1]>='0'&&str[1]<='9'){
         ans+=str[1]-'0';
     }else{
@@ -25,11 +25,11 @@ int TokenToInt(std::string str){
 
 class Memory{
 private:
-    int memory[4096]={};
+    unsigned int memory[4096]={};
 public:
     void read(){
         std::string line;
-        int place;//在内存中写的位置
+        unsigned int place;//在内存中写的位置
         while(std::getline(std::cin,line)){
             if(line.empty()){
                 continue;
@@ -41,7 +41,7 @@ public:
                 std::istringstream iss(line);
                 std::string token;
                 int cnt=0;
-                int value=0;
+                unsigned int value=0;
                 while(iss>>token){
                     cnt++;
                     value+= TokenToInt(token)<<8*(cnt-1);
@@ -56,11 +56,11 @@ public:
         }
     }
 
-    void write_word(int &data,int index){
+    void write_word(unsigned int &data,int index){
         memory[index]=data;
     }
 
-    void read_word(int &data,int index){
+    void read_word(unsigned int &data,int index){
         data=memory[index];
     }
 };
