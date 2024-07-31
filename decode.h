@@ -4,13 +4,67 @@
 
 #ifndef CODE_DECODE_H
 #define CODE_DECODE_H
-#include "instructions.h"
 
-const int opcode=0b1111111;
-const int imm_31_25=0b1111111<<25;
-const int rd_=0b11111<<7;
+enum RoBtype{//传入RoB的指令类型
+    toreg,
+    store_,
+    load_,
+    branch_,
+    br_succeed,
+    br_fail,
+    exit_,
+};
 
-InstructionUnit decode(int ins){
+enum Instr{//所有指令
+    Lui,
+    Auipc,
+    Jal,
+    Jalr,
+    Beq,
+    Bne,
+    Blt,
+    Bge,
+    Bltu,
+    Bgeu,
+    Lb,
+    Lh,
+    Lw,
+    Lbu,
+    Lhu,
+    Sb,
+    Sh,
+    Sw,
+    Addi,
+    Slti,
+    Sltiu,
+    Xori,
+    Ori,
+    Andi,
+    Slli,
+    Srli,
+    Srai,
+    Add,
+    Sub,
+    Sll,
+    Slt,
+    Sltu,
+    Xor,
+    Srl,
+    Sra,
+    Or,
+    And,
+    Exit
+};
+
+struct InstructionUnit{//一条指令所包含的信息
+    Instr ins;
+    unsigned int rs1,rs2;
+    unsigned int rd;//目标寄存器
+    unsigned int imm;
+    unsigned int PC;
+};
+
+InstructionUnit decode(int ins,unsigned int PC){
     InstructionUnit ans;
     Instr op;
     unsigned int rs1,rs2,rd,imm;
@@ -22,18 +76,18 @@ InstructionUnit decode(int ins){
 
     int type=ins&(0b1111111);
     //先获得立即数
-    if(type==0b0110111||type==0b0010111){//U
+    if(type==0b0110111||type==0b0010111){  //U
         imm=ins&(~0b111111111111u);
         if(type==0b0110111){
             op=Lui;
         }else{
             op=Auipc;
         }
-    }else if(type==0b1101111){//J
+    }else if(type==0b1101111){  //J
         imm=(((ins>>31)&0b1)<<20)|(((ins>>21)&0b1111111111)<<1)|(((ins>>20)&1)<<11)|(((ins>>12)&0b11111111)<<12);
         imm=static_cast<int>(imm<<11)>>11;//符号扩展
         op=Jal;
-    }else if(type==0b1100111||type==0b0000011||type==0b0010011){//I
+    }else if(type==0b1100111||type==0b0000011||type==0b0010011){  //I
         imm=(ins>>20);
         if(type==0b1100111){
             op=Jalr;
@@ -49,7 +103,7 @@ InstructionUnit decode(int ins){
             }else if(funct3==0b101){
                 op=Lhu;
             }
-        }else if(type==0b0010011){
+        }else if(type == 0b0010011){
             if(funct3==0b000){
                 op=Addi;
             }else if(funct3==0b010){
@@ -72,9 +126,11 @@ InstructionUnit decode(int ins){
                 }
             }
         }
-    }else if(type==0b1100011){//B
+    }else if(type==0b1100011){  //B
         imm=(((ins>>31)&0b1)<<12)|(((ins>>25)&0b111111)<<5)|(((ins>>8)&0b1111)<<1)|(((ins>>7)&0b1)<<11);
         imm=static_cast<int>(imm<<19)>>19;//符号扩展
+
+        rd=-1;//B指令没有目的寄存器
 
         if(funct3==0b000){
             op=Beq;
@@ -89,9 +145,11 @@ InstructionUnit decode(int ins){
         }else if(funct3==0b111){
             op=Bgeu;
         }
-    }else if(type==0b0100011){//S
+    }else if(type==0b0100011){  //S
         imm=((ins>>25)&0b1111111<<5)|((ins>>7)&0b11111);
         imm=static_cast<int>(imm<<20)>>20;
+
+        rd=-1;//S指令没有目的寄存器
 
         if(funct3==0b000){
             op=Sb;
@@ -100,7 +158,7 @@ InstructionUnit decode(int ins){
         }else if(funct3==0b010){
             op=Sw;
         }
-    }else if(type==0b0110011){//R
+    }else if(type==0b0110011){  //R
         imm=0;
 
         if(funct3==0b000){
@@ -139,6 +197,8 @@ InstructionUnit decode(int ins){
     ans.rs2=rs2;
     ans.imm=imm;
     ans.rd=rd;
+    ans.PC=PC;
+    return ans;
 }
 
 RoBtype get_RoBtype(Instr op){
@@ -152,7 +212,8 @@ RoBtype get_RoBtype(Instr op){
         case Lh:
         case Lw:
         case Lbu:
-        case Lhu:
+        case Lhu:ans=load_;
+            break;
         case Addi:
         case Slti:
         case Sltiu:
@@ -178,17 +239,70 @@ RoBtype get_RoBtype(Instr op){
         case Blt:
         case Bge:
         case Bltu:
-        case Bgeu:ans=tobranch;
+        case Bgeu:ans=branch_;
             break;
         case Sb:
         case Sh:
-        case Sw:ans=tomem;
+        case Sw:ans=store_;
             break;
         case Exit:ans=exit_;
             break;
     }
     return ans;
 };
+
+int rs_cnt(Instr op){//需要的寄存器个数
+    int ans=0;
+    switch (op) {
+        case Lui:
+        case Auipc:
+        case Jal:ans=0;
+            break;
+        case Jalr:ans=1;
+            break;
+        case Lb:
+        case Lh:
+        case Lw:
+        case Lbu:
+        case Lhu:ans=1;
+            break;
+        case Addi:
+        case Slti:
+        case Sltiu:
+        case Xori:
+        case Ori:
+        case Andi:
+        case Slli:
+        case Srli:
+        case Srai:ans=1;
+            break;
+        case Add:
+        case Sub:
+        case Sll:
+        case Slt:
+        case Sltu:
+        case Xor:
+        case Srl:
+        case Sra:
+        case Or:
+        case And: ans=2;
+            break;
+        case Beq:
+        case Bne:
+        case Blt:
+        case Bge:
+        case Bltu:
+        case Bgeu:ans=2;
+            break;
+        case Sb:
+        case Sh:
+        case Sw:ans=2;
+            break;
+        case Exit:ans=0;
+            break;
+    }
+    return ans;
+}
 
 void func_lui(){
 

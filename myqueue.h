@@ -45,6 +45,18 @@ public:
         return front==rear;
     }
 
+    Queue<T,cap>& operator=(Queue<T,cap> obj){
+        if(&obj==this){
+            return *this;
+        }
+        front=obj.front;
+        rear=obj.rear;
+        for(int i=0;i<cap;i++){
+            value[i]=obj.value[i];
+        }
+        return *this;
+    }
+
     T& operator[](int index){
         return value[index];
     }

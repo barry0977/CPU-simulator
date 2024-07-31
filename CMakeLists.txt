@@ -7,4 +7,14 @@ include_directories(.)
 
 add_executable(code main.cpp
         memory.h
+        registerfile.h
+        reorderbuffer.h
+        reservationstation.h
+        loadstorebuffer.h
+        decode.h
+        alu.h
+        cpu.h
+        myqueue.h
+        instructionqueue.h
+        bus.h
 )

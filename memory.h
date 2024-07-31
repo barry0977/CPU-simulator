@@ -40,7 +40,7 @@ public:
             else{
                 std::istringstream iss(line);
                 std::string token;
-                int cnt=0;
+                unsigned int cnt=0;
                 unsigned int value=0;
                 while(iss>>token){
                     cnt++;
@@ -63,6 +63,77 @@ public:
     void read_word(unsigned int &data,int index){
         data=memory[index];
     }
-};
 
+    int load_byte(int index){//读出一个字节
+        int addr=index-index%4;
+        int order=index%4;
+        int data=memory[addr];
+        data=data>>(8*order)&0b11111111;
+        int res=static_cast<int>(data<<24)>>24;//符号扩展
+        return res;
+    }
+
+    int load_half(int index){//读出两个字节
+        int addr=index-index%4;
+        int order=index%4;
+        int data=memory[addr];
+        data=data>>(8*order)&0xFF;
+        int res=static_cast<int>(data<<16)>>16;//符号扩展
+        return res;
+    }
+
+    int load_word(int index){//读出四个字节
+        return memory[index];
+    }
+
+    int load_byte_u(int index){
+        int addr=index-index%4;
+        int order=index%4;
+        int data=memory[addr];
+        data=data>>(8*order)&0b11111111;//无需符号扩展
+        return data;
+    }
+
+    int load_half_u(int index){
+        int addr=index-index%4;
+        int order=index%4;
+        int data=memory[addr];
+        data=data>>(8*order)&0xFF;//无需符号扩展
+        return data;
+    }
+
+    void store_byte(int data,int index){//写入一个字节
+        int addr=index-index%4;
+        int order=index%4;
+        if(order==0){
+            memory[addr]&=0xFFFFFF00;//把第一个字节置为0
+            memory[addr]|=data;
+        }else if(order==1){
+            memory[addr]&=0xFFFF00FF;//把第二个字节置为0
+            memory[addr]|=(data<<8);
+        }else if(order==2){
+            memory[addr]&=0xFF00FFFF;//把第三个字节置为0
+            memory[addr]|=(data<<16);
+        }else{
+            memory[addr]&=0x00FFFFFF;//把第四个字节置为0
+            memory[addr]|=(data<<24);
+        }
+    }
+
+    void store_half(int data,int index){//写入两个字节
+        int addr=index-index%4;
+        int order=index%4;
+        if(order==0){
+            memory[addr]&=0xFFFF0000;//把前两个字节置为0
+            memory[addr]|=data;
+        }else{
+            memory[addr]&=0x0000FFFF;//把后两个字节置为0
+            memory[addr]|=(data<<16);
+        }
+    }
+
+    void store_word(int data,int index){//写入四个字节
+        memory[index]=data;
+    }
+};
 #endif //CODE_MEMORY_H

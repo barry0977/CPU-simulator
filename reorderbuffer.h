@@ -5,13 +5,14 @@
 #ifndef CODE_REORDERBUFFER_H
 #define CODE_REORDERBUFFER_H
 #include "myqueue.h"
-#include "instructions.h"
-
+#include "decode.h"
+#include "registerfile.h"
 struct RoBentry{
     RoBtype type;
-    int index;
+    int index;//在RoB中的编号
     InstructionUnit Itr;
     bool ready;
+    int value;
 };
 
 class ReorderBuffer{
@@ -24,25 +25,39 @@ public:
         list=list_next;
     }
 
-    void launch(InstructionUnit ins){
+    int issue(InstructionUnit ins,RegisterFile *RF){
         if(list.full()){
-            return;
+            std::cout<<"RoB is full\n";
+            return -1;
         }else{
             int index=list.get_tail();
             RoBentry tmp;
-
+            tmp.type= get_RoBtype(ins.ins);
+            tmp.ready=false;
+            tmp.index=index;
+            tmp.Itr=ins;
+            list_next[index]=tmp;
+            return index;
         }
     }
 
-    void commit(){
+    void finish_calc(int index,int value){
+
+    }
+
+    void commit(RegisterFile *RF){
         RoBentry top=list.top();
         if(top.ready){
             list_next.pop();
             if(top.type==toreg){
+                RF->update_data(top.Itr.rd,top.index,top.value);
+            }else if(top.type==store_){
 
-            }else if(top.type==tomem){
+            }else if(top.type==load_){
 
-            }else if(top.type==tobranch){
+            }else if(top.type==br_succeed){
+
+            }else if(top.type==br_fail){
 
             }else if(top.type==exit_){
 

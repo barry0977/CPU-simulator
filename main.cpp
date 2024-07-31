@@ -5,6 +5,7 @@
 int main(){
     freopen("in.txt","r",stdin);
     Memory memory;
-    CPU cpu;
     memory.read();
+    CPU cpu(&memory);
+    cpu.run();
 }
