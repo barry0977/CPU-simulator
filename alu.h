@@ -78,7 +78,7 @@ public:
     }
 
     int BGE(int rs1,int rs2){
-        if(rs1>rs2){
+        if(rs1>=rs2){
             return 1;
         }else{
             return 0;
@@ -94,7 +94,7 @@ public:
     }
 
     int BGEU(int rs1,int rs2){
-        if(static_cast<unsigned int>(rs1)>static_cast<unsigned int>(rs2)){
+        if(static_cast<unsigned int>(rs1)>=static_cast<unsigned int>(rs2)){
             return 1;
         }else{
             return 0;
