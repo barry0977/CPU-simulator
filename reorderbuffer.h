@@ -102,7 +102,7 @@ public:
     int commit(RegisterFile *RF,Memory *mem,CDB *cdb){
         if(cdb->num==1){
             CDB_value newinf=cdb->update;
-//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value;
+//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value<<"\n";
             RF->update_data(newinf.index,newinf);
         }
         if(list.empty()){//如果空则不会进行commit
@@ -111,6 +111,8 @@ public:
         RoBentry top=list.top();
         if(top.ready){
             list_next.pop();
+//            std::cout<<"commit | "<<top.Itr.ins<<" "<<top.Itr.PC<<std::endl;
+//            RF->show();
             if(top.type==toreg){
                 CDB_value tmp;
                 tmp.value=top.value;

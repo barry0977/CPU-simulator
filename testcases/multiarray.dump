@@ -102,7 +102,7 @@ Disassembly of section .text:
     1138:	00300a13          	li	s4,3
     113c:	2e042223          	sw	zero,740(s0) # 12e4 <j>
     1140:	00000713          	li	a4,0
-    1144:	2e84a683          	lw	a3,744(s1)
+    1144:	2e84a683          	lw	a3,744(s1)//
     1148:	00169793          	slli	a5,a3,0x1
     114c:	00d787b3          	add	a5,a5,a3
     1150:	00279793          	slli	a5,a5,0x2
