@@ -60,7 +60,7 @@ public:
     }
 
     void write_word(unsigned int &data,int index){
-        std::cout<<"地址： "<<index<<"  "<<std::hex << std::setfill('0') << std::setw(8)<<data<<std::endl;
+//        std::cout<<"地址： "<<index<<"  "<<std::hex << std::setfill('0') << std::setw(8)<<data<<std::endl;
         memory[index]=data;
     }
 

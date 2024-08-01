@@ -49,15 +49,13 @@ public:
             return;
         }
         InstructionUnit Ins= decode(itr,PC);
-        std::cout<<"当前获取的指令："<<Ins.ins<<" rs1:"<<Ins.rs1<<" rs2:"<<Ins.rs2<<" rd:"<<Ins.rd<<" imm:"<<Ins.imm<<" PC:"<<Ins.PC<<"\n";
+//        std::cout<<"当前获取的指令："<<Ins.ins<<" rs1:"<<Ins.rs1<<" rs2:"<<Ins.rs2<<" rd:"<<Ins.rd<<" imm:"<<Ins.imm<<" PC:"<<Ins.PC<<"\n";
         IQ_next.push(Ins);
         if(Ins.ins==Jal){
             PC_next=PC+Ins.imm;
         }else if(Ins.ins==Exit){
-            std::cout<<"设置暂停for exit\n";
             pause=true;
         }else if(Ins.ins==Jalr){
-            std::cout<<"设置暂停for jalr\n";
             pause=true;
         }else{
             PC_next=PC+4;
@@ -67,9 +65,6 @@ public:
     void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb){
         if(!pause){
             IF();
-        }
-        if(pause){
-            std::cout<<"当前停止在 "<<PC<<"\n";
         }
         launch(RoB,RS,LSB,RF,cdb);
     }

@@ -35,14 +35,14 @@ public:
     void run(){
         int clk=0;
         while(true){
-            std::cout<<"clk: "<<clk<<std::endl;
+//            std::cout<<"clk: "<<clk<<std::endl;
             clk++;
             execute();
-            RF.show();
-            RoB.show();
-            RS.show();
-            LSB.show();
-            cdb.show();
+//            RF.show();
+//            RoB.show();
+//            RS.show();
+//            LSB.show();
+//            cdb.show();
             refresh();
         }
     }
@@ -71,8 +71,6 @@ public:
         int res=RoB.commit(&RF,mem,&cdb);
         RS.execute(&alu,&RoB,&cdb);
         LSB.execute(mem,&RoB,&cdb);
-//        RS.get_from_LSB(&cdb);//从LSB接受信息更新
-//        LSB.get_from_RS(&cdb);//从RS接受信息更新
         if(res>=0){//如果发现预测错误
             flush(res);
         }

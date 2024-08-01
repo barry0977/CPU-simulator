@@ -102,7 +102,7 @@ public:
     int commit(RegisterFile *RF,Memory *mem,CDB *cdb){
         if(cdb->num==1){
             CDB_value newinf=cdb->update;
-            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value;
+//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value;
             RF->update_data(newinf.index,newinf);
         }
         if(list.empty()){//如果空则不会进行commit
@@ -116,7 +116,6 @@ public:
                 tmp.value=top.value;
                 tmp.RoB_index=top.index;
                 tmp.index=top.Itr.rd;
-                std::cout<<"提交指令 "<<top.Itr.ins<<" 得到："<<"CDB: value: "<<tmp.value<<" RoBindex: "<<tmp.RoB_index<<" RFindex: "<<tmp.index<<"\n";
                 cdb->send(tmp);
             }else if(top.type==else_) {
                 if(top.Itr.ins==Jalr) {
@@ -124,7 +123,6 @@ public:
                     tmp.value=top.value;
                     tmp.RoB_index=top.index;
                     tmp.index=top.Itr.rd;
-                    std::cout<<"提交指令 "<<top.Itr.ins<<" 得到："<<"CDB: value: "<<tmp.value<<" RoBindex: "<<tmp.RoB_index<<" RFindex: "<<tmp.index<<"\n";
                     cdb->send(tmp);
                     return top.addr;
                 }else {
@@ -132,7 +130,6 @@ public:
                     tmp.value=top.value;
                     tmp.RoB_index=top.index;
                     tmp.index=top.Itr.rd;
-                    std::cout<<"提交指令 "<<top.Itr.ins<<" 得到："<<"CDB: value: "<<tmp.value<<" RoBindex: "<<tmp.RoB_index<<" RFindex: "<<tmp.index<<"\n";
                     cdb->send(tmp);
                 }
             }else if(top.type==store_){//当store被commit时，前面都已经commit，可以直接从RF中读取(可能还没更新，要检查cdb)
@@ -146,14 +143,14 @@ public:
                     }
                 }
                 int data=rs2,index=rs1+top.Itr.imm;
-                std::cout<<"将 "<<data<<" 存入 "<<index<<"\n";
+//                std::cout<<"将 "<<data<<" 存入 "<<index<<"\n";
                 mem->store(data,index,top.Itr.ins);
             }else if(top.type==load_){
                 CDB_value tmp;
                 tmp.value=top.value;
                 tmp.RoB_index=top.index;
                 tmp.index=top.Itr.rd;
-                std::cout<<"提交指令 "<<top.Itr.ins<<" 得到："<<"CDB: value: "<<tmp.value<<" RoBindex: "<<tmp.RoB_index<<" RFindex: "<<tmp.index<<"\n";
+//                std::cout<<"提交指令 "<<top.Itr.ins<<" 得到："<<"CDB: value: "<<tmp.value<<" RoBindex: "<<tmp.RoB_index<<" RFindex: "<<tmp.index<<"\n";
                 cdb->send(tmp);
             }else if(top.type==branch_){
                 if(top.value==1){//需要跳转
