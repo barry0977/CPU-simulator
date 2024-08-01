@@ -5,9 +5,7 @@
 #ifndef CODE_INSTRUCTIONQUEUE_H
 #define CODE_INSTRUCTIONQUEUE_H
 #include "memory.h"
-//#include "decode.h"
 #include "myqueue.h"
-//#include "bus.h"
 #include "cdb.h"
 
 class InstructionQueue{
@@ -33,6 +31,10 @@ public:
         IQ=IQ_next;
     }
 
+    void flush(){
+        IQ_next.clear();
+    }
+
     void set_PC(unsigned int addr){
         PC_next=addr;
         pause=false;
@@ -43,7 +45,7 @@ public:
         PC;
         itr=mem->read_word(PC);
         if(itr==0){
-            pause_next=true;
+            pause=true;
             return;
         }
         InstructionUnit Ins= decode(itr,PC);
@@ -51,9 +53,11 @@ public:
         IQ_next.push(Ins);
         if(Ins.ins==Jal){
             PC_next=PC+Ins.imm;
-        }else if(Ins.ins==exit_){
+        }else if(Ins.ins==Exit){
+            std::cout<<"设置暂停for exit\n";
             pause=true;
         }else if(Ins.ins==Jalr){
+            std::cout<<"设置暂停for jalr\n";
             pause=true;
         }else{
             PC_next=PC+4;
@@ -63,6 +67,9 @@ public:
     void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb){
         if(!pause){
             IF();
+        }
+        if(pause){
+            std::cout<<"当前停止在 "<<PC<<"\n";
         }
         launch(RoB,RS,LSB,RF,cdb);
     }

@@ -42,6 +42,7 @@ public:
             RoB.show();
             RS.show();
             LSB.show();
+            cdb.show();
             refresh();
         }
     }
@@ -56,10 +57,12 @@ public:
     }
 
     void flush(unsigned int addr){//清空RoB,RS和LSB，重置寄存器状态，重置IQ的PC
+        //还要清空IQ!
         RoB.flush();
         RS.flush();
         LSB.flush();
         RF.flush();
+        IQ.flush();
         IQ.set_PC(addr);
     }
 

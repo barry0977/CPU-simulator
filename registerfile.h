@@ -61,7 +61,7 @@ public:
             return;
         }
         regs_next[index].data=res.value;
-        if(res.RoB_index==regs[index].rely){
+        if(res.RoB_index==regs_next[index].rely){
             regs_next[index].busy=false;
             regs_next[index].rely=-1;
         }
