@@ -5,7 +5,7 @@
 #ifndef CODE_CPU_H
 #define CODE_CPU_H
 #include "reorderbuffer.h"
-#include "reservationstation.h"
+#include "reservationstation_loadstorebuffer.h"
 #include "registerfile.h"
 #include "loadstorebuffer.h"
 #include "instructionqueue.h"
@@ -15,7 +15,7 @@
 class CPU{
 private:
     Memory *mem;
-    ReorderBuffer RB;
+    ReorderBuffer RoB;
     ReservationStation RS;
     RegisterFile RF;
     LoadStoreBuffer LSB;
@@ -27,21 +27,43 @@ public:
         mem=memory;
     }
 
-    void run(){
+    void init(){
+        IQ.init(mem);
 
+    }
+
+    void run(){
+        int clk=0;
+        while(true){
+            clk++;
+            execute();
+            refresh();
+        }
     }
 
     void refresh(){
-        RB.refresh();
+        RoB.refresh();
         RS.refresh();
         RF.refresh();
         LSB.refresh();
+        IQ.refresh();
+    }
+
+    void flush(unsigned int addr){//清空RoB,RS和LSB，重置IQ的PC
+        RoB.flush();
+        RS.flush();
+        LSB.flush();
+        RF.flush();
+        IQ.set_PC(addr);
     }
 
     void execute(){
-        RB.execute();
-        RS.execute();
-        R
+        int res=RoB.commit(&RF,mem,&LSB);
+        RS.execute(&alu,&RoB);
+        LSB.execute(mem);
+        if(res>=0){//如果发现预测错误
+            flush(res);
+        }
     }
 };
 

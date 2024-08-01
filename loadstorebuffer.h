@@ -5,10 +5,10 @@
 #ifndef CODE_LOADSTOREBUFFER_H
 #define CODE_LOADSTOREBUFFER_H
 #include "myqueue.h"
-//#include "registerfile.h"
 
 struct LSBentry{
     Instr op;
+    int RoBindex;
     int vj,vk;
     int qj=-1,qk=-1;
     unsigned int imm;
@@ -26,13 +26,26 @@ public:
         LSB_list=LSB_list_next;
     }
 
-    void add(InstructionUnit Ins,RegisterFile *RF){
+    void flush(){//清空LSB
+        LSB_list_next.clear();
+    }
+
+    bool available(){
+        if(LSB_list.full()){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    void add(InstructionUnit Ins,int index,RegisterFile *RF){
         if(LSB_list.full()){
             std::cout<<"LSB is full\n";
             return;
         }else{
             LSBentry tmp;
             tmp.op=Ins.ins;
+            tmp.RoBindex=index;
             switch (tmp.op) {
                 case Lb:
                 case Lh:
@@ -48,26 +61,26 @@ public:
                     tmp.imm=Ins.imm;
                     break;
                 }
-                case Sb:
-                case Sh:
-                case Sw:{
-                    if(!RF->regs[Ins.rs1].busy){//如果没有依赖，直接读取数值
-                        tmp.vj=RF->regs[Ins.rs1].data;
-                        tmp.qj=-1;
-                    }else{//否则，将依赖的编号存入qj
-                        tmp.qj=RF->regs[Ins.rs1].rely;
-                    }
-
-                    if(!RF->regs[Ins.rs2].busy){//如果没有依赖，直接读取数值
-                        tmp.vk=RF->regs[Ins.rs2].data;
-                        tmp.qk=-1;
-                    }else{//否则，将依赖的编号存入qk
-                        tmp.qk=RF->regs[Ins.rs2].rely;
-                    }
-
-                    tmp.imm=Ins.imm;
-                    break;
-                }
+//                case Sb:
+//                case Sh:
+//                case Sw:{
+//                    if(!RF->regs[Ins.rs1].busy){//如果没有依赖，直接读取数值
+//                        tmp.vj=RF->regs[Ins.rs1].data;
+//                        tmp.qj=-1;
+//                    }else{//否则，将依赖的编号存入qj
+//                        tmp.qj=RF->regs[Ins.rs1].rely;
+//                    }
+//
+//                    if(!RF->regs[Ins.rs2].busy){//如果没有依赖，直接读取数值
+//                        tmp.vk=RF->regs[Ins.rs2].data;
+//                        tmp.qk=-1;
+//                    }else{//否则，将依赖的编号存入qk
+//                        tmp.qk=RF->regs[Ins.rs2].rely;
+//                    }
+//
+//                    tmp.imm=Ins.imm;
+//                    break;
+//                }
                 default:
                     break;
             }
@@ -86,16 +99,20 @@ public:
                case Lhu:{
                    if(obj.qj==-1){
                        int addr=obj.vj+obj.imm;
-
+                       int result=mem->load(addr,obj.op);
+                       LSB_list_next.pop();
                    }
+                   break;
                }
-               case Sb:
-               case Sh:
-               case Sw:{
-                   if(obj.qj==-1&&obj.qk==-1){
-
-                   }
-               }
+//               case Sb:
+//               case Sh:
+//               case Sw:{
+//                   if(obj.qj==-1&&obj.qk==-1){
+//                       int addr=obj.vj+obj.imm;
+//
+//                   }
+//                   break;
+//               }
                default:
                    break;
            }

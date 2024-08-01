@@ -6,14 +6,9 @@
 #define CODE_REORDERBUFFER_H
 #include "myqueue.h"
 #include "decode.h"
+#include "bus.h"
 #include "registerfile.h"
-struct RoBentry{
-    RoBtype type;
-    int index;//在RoB中的编号
-    InstructionUnit Itr;
-    bool ready;
-    int value;
-};
+#include "loadstorebuffer.h"
 
 class ReorderBuffer{
 private:
@@ -25,6 +20,14 @@ public:
         list=list_next;
     }
 
+    bool available(){//是否可用
+        if(list.full()){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     int issue(InstructionUnit ins,RegisterFile *RF){
         if(list.full()){
             std::cout<<"RoB is full\n";
@@ -33,36 +36,71 @@ public:
             int index=list.get_tail();
             RoBentry tmp;
             tmp.type= get_RoBtype(ins.ins);
+            tmp.dest=ins.rd;
             tmp.ready=false;
             tmp.index=index;
             tmp.Itr=ins;
-            list_next[index]=tmp;
+            if(tmp.dest>=0){
+                RF->add_dependency(tmp.dest,tmp.index);
+            }
+            list_next.push(tmp);
             return index;
         }
     }
 
-    void finish_calc(int index,int value){
+    int issue(RoBentry res,RegisterFile *RF){
+        if(list.full()){
+            std::cout<<"RoB is full\n";
+            return -1;
+        }else{
+            int index=list.get_tail();
+            res.index=index;
+            if(res.dest>=0){
+                RF->add_dependency(res.dest,index);
+            }
+            list_next.push(res);
+            return index;
+        }
+    }
+
+    void flush(){//清空RoB
+        list_next.clear();
+    }
+
+    void execute(){
 
     }
 
-    void commit(RegisterFile *RF){
+    void finish_calc(int index,int value){
+        list_next[index].ready= true;
+        list_next[index].value=value;
+    }
+
+    int commit(RegisterFile *RF,Memory *mem,LoadStoreBuffer *LSB){
         RoBentry top=list.top();
         if(top.ready){
             list_next.pop();
             if(top.type==toreg){
-                RF->update_data(top.Itr.rd,top.index,top.value);
-            }else if(top.type==store_){
-
+                CDB_value tmp;
+                tmp.value=top.value;
+                tmp.RoB_index=top.index;
+                RF->update_data(top.Itr.rd,tmp);
+            }else if(top.type==store_){//当store被commit时，前面都已经commit，可以直接从RF中读取
+                int rs1=RF->regs[top.Itr.rs1].data,rs2=RF->regs[top.Itr.rs2].data;
+                int data=rs2&0xFF,index=rs1+top.Itr.imm;
+                mem->store(data,index,top.Itr.ins);
             }else if(top.type==load_){
 
-            }else if(top.type==br_succeed){
-
-            }else if(top.type==br_fail){
-
+            }else if(top.type==branch_){
+                if(top.value==1){//需要跳转
+                    return top.addr;//返回需要跳转的地址
+                }
             }else if(top.type==exit_){
-
+                std::cout<<static_cast<unsigned int>(RF->regs[10].data&0xFF)<<std::endl;
+                exit(0);
             }
         }
+        return -1;
     }
 };
 

@@ -4,7 +4,7 @@
 
 #ifndef CODE_REGISTERFILE_H
 #define CODE_REGISTERFILE_H
-
+#include "bus.h"
 struct Register{
     int data=0;//储存的数据
     int rely=-1;//最新值将由哪条指令算出
@@ -17,6 +17,12 @@ private:
 public:
     Register regs[32];
 public:
+
+    void flush(){
+        for(int i=1;i<32;i++){
+            regs_next[i].busy=false;
+        }
+    }
 
     void refresh(){
         for(int i=1;i<32;i++){

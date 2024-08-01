@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include "decode.h"
 unsigned int TokenToInt(std::string str){
     unsigned int ans=0;
     if(str[1]>='0'&&str[1]<='9'){
@@ -102,6 +103,16 @@ public:
         return data;
     }
 
+    int load(int index,Instr op){
+        switch(op){
+            case Lb:return load_byte(index);
+            case Lh:return load_half(index);
+            case Lw:return load_word(index);
+            case Lbu:return load_byte_u(index);
+            case Lhu:return load_half_u(index);
+        }
+    }
+
     void store_byte(int data,int index){//写入一个字节
         int addr=index-index%4;
         int order=index%4;
@@ -134,6 +145,20 @@ public:
 
     void store_word(int data,int index){//写入四个字节
         memory[index]=data;
+    }
+
+    void store(int data,int index,Instr op){
+        switch(op){
+            case Sb:
+                store_byte(data,index);
+                break;
+            case Sh:
+                store_half(data,index);
+                break;
+            case Sw:
+                store_word(data,index);
+                break;
+        }
     }
 };
 #endif //CODE_MEMORY_H
