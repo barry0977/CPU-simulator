@@ -10,6 +10,9 @@ class ALU{
 public:
     int execute(Instr op,int rs1,int rs2){
         switch (op) {
+            case Lui:return LUI(rs1);
+            case Auipc:return AUIPC(rs1,rs2);
+            case Jal:return JAL(rs2);
             case Beq:return BEQ(rs1,rs2);
             case Bne:return BNE(rs1,rs2);
             case Blt:return BLT(rs1,rs2);
@@ -36,6 +39,18 @@ public:
             case Sra:return SRA(rs1,rs2);
             case Sub:return SUB(rs1,rs2);
         }
+    }
+
+    int LUI(int imm){
+        return imm;
+    }
+
+    int AUIPC(int imm,int PC){
+        return imm+PC;
+    }
+
+    int JAL(int PC){
+        return PC+4;
     }
 
     int BEQ(int rs1,int rs2){

@@ -5,12 +5,12 @@
 #ifndef CODE_CPU_H
 #define CODE_CPU_H
 #include "reorderbuffer.h"
-#include "reservationstation_loadstorebuffer.h"
-#include "registerfile.h"
+#include "reservationstation.h"
 #include "loadstorebuffer.h"
+#include "registerfile.h"
 #include "instructionqueue.h"
 #include "alu.h"
-
+#include "cdb.h"
 
 class CPU{
 private:
@@ -21,6 +21,7 @@ private:
     LoadStoreBuffer LSB;
     InstructionQueue IQ;
     ALU alu;
+    CDB cdb;
 
 public:
     CPU(Memory *memory){
@@ -29,14 +30,18 @@ public:
 
     void init(){
         IQ.init(mem);
-
     }
 
     void run(){
         int clk=0;
         while(true){
+            std::cout<<"clk: "<<clk<<std::endl;
             clk++;
             execute();
+            RF.show();
+            RoB.show();
+            RS.show();
+            LSB.show();
             refresh();
         }
     }
@@ -58,9 +63,12 @@ public:
     }
 
     void execute(){
-        int res=RoB.commit(&RF,mem,&LSB);
-        RS.execute(&alu,&RoB);
-        LSB.execute(mem);
+        IQ.execute(&RoB,&RS,&LSB,&RF);
+        int res=RoB.commit(&RF,mem);
+        RS.execute(&alu,&RoB,&cdb);
+        LSB.execute(mem,&RoB,&cdb);
+        RS.get_from_LSB(&cdb);//从LSB接受信息更新
+        LSB.get_from_RS(&cdb);//从RS接受信息更新
         if(res>=0){//如果发现预测错误
             flush(res);
         }

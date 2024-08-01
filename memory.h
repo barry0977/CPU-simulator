@@ -26,7 +26,7 @@ unsigned int TokenToInt(std::string str){
 
 class Memory{
 private:
-    unsigned int memory[4096]={};
+    unsigned int memory[4096*100]={};
 public:
     void read(){
         std::string line;
@@ -36,7 +36,9 @@ public:
                 continue;
             }
             else if(line[0]=='@'){
-                place=std::stoi(line.substr(1,8));
+                std::stringstream ss;
+                ss<<std::hex<<line.substr(1,8);
+                ss>>place;
             }
             else{
                 std::istringstream iss(line);
@@ -48,7 +50,7 @@ public:
                     value+= TokenToInt(token)<<8*(cnt-1);
                     if(cnt==4){
                         write_word(value,place);
-                        std::cout<< std::hex << std::setfill('0') << std::setw(8)<<value<<std::endl;
+//                        std::cout<< std::hex << std::setfill('0') << std::setw(8)<<value<<std::endl;
                         place+=4;
                         cnt=value=0;
                     }
@@ -58,11 +60,12 @@ public:
     }
 
     void write_word(unsigned int &data,int index){
+        std::cout<<"地址： "<<index<<"  "<<std::hex << std::setfill('0') << std::setw(8)<<data<<std::endl;
         memory[index]=data;
     }
 
-    void read_word(unsigned int &data,int index){
-        data=memory[index];
+    unsigned int read_word(int index){
+        return memory[index];
     }
 
     int load_byte(int index){//读出一个字节

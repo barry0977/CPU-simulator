@@ -28,5 +28,15 @@ struct RSunit{
     Instr op;
     int vj,vk;
     int qj,qk;
+    int result;
+};
+
+struct LSBentry{
+    Instr op;
+    int RoBindex;
+    int vj,vk;
+    int qj=-1,qk=-1;
+    unsigned int imm;
+    int A;//Load或Store的地址
 };
 #endif //CODE_BUS_H

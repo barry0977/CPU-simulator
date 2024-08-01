@@ -7,5 +7,6 @@ int main(){
     Memory memory;
     memory.read();
     CPU cpu(&memory);
+    cpu.init();
     cpu.run();
 }

@@ -24,6 +24,19 @@ public:
         }
     }
 
+    void show(){
+        std::cout<<"----------- RF ---------------------\n";
+        for(int i=0;i<32;i++){
+            std::cout<<"reg "<<i<<": "<<regs[i].data<<" next state: "<<regs_next[i].data;
+            if(regs[i].busy){
+                std::cout<<" . rely is "<<regs[i].rely<<std::endl;
+            }else{
+                std::cout<<" . no rely "<<std::endl;
+            }
+
+        }
+    }
+
     void refresh(){
         for(int i=1;i<32;i++){
             regs[i]=regs_next[i];

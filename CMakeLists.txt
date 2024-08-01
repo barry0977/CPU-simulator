@@ -9,8 +9,7 @@ add_executable(code main.cpp
         memory.h
         registerfile.h
         reorderbuffer.h
-        reservationstation_loadstorebuffer.h
-        loadstorebuffer.h
+        reservationstation.h
         decode.h
         alu.h
         cpu.h

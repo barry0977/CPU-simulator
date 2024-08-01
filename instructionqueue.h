@@ -11,14 +11,14 @@
 
 class InstructionQueue{
 private:
-    Queue<InstructionUnit,32>IQ_next;
+    Queue<InstructionUnit,64>IQ_next;
     int PC_next;
-    bool pause_next;
+    bool pause_next=false;
     Memory *mem;
 public:
-    Queue<InstructionUnit,32>IQ;
+    Queue<InstructionUnit,64>IQ;
     int PC;
-    bool pause;//是否暂停
+    bool pause= false;//是否暂停
 
 public:
     void init(Memory *memory){
@@ -30,19 +30,33 @@ public:
     void refresh(){
         PC=PC_next;
         IQ=IQ_next;
-        pause=pause_next;
     }
 
     void set_PC(unsigned int addr){
         PC_next=addr;
+        pause=false;
     }
 
     void IF(){
-        unsigned int itr;
-        mem->read_word(itr,PC);
+        unsigned int itr=0;
+        PC;
+        itr=mem->read_word(PC);
+        if(itr==0){
+            pause_next=true;
+            return;
+        }
         InstructionUnit Ins= decode(itr,PC);
+        std::cout<<"当前获取的指令："<<Ins.ins<<" rs1:"<<Ins.rs1<<" rs2:"<<Ins.rs2<<" rd:"<<Ins.rd<<" imm:"<<Ins.imm<<" PC:"<<Ins.PC<<"\n";
         IQ_next.push(Ins);
-        PC_next=PC+4;
+        if(Ins.ins==Jal){
+            PC_next=PC+Ins.imm;
+        }else if(Ins.ins==exit_){
+            pause=true;
+        }else if(Ins.ins==Jalr){
+            pause=true;
+        }else{
+            PC_next=PC+4;
+        }
     }
 
     void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF){
@@ -63,62 +77,57 @@ public:
                 int index=RoB->issue(ins,RF);
                 LSB->add(ins,index,RF);
                 IQ_next.pop();
-            }else{
-                pause_next=true;
             }
         }else{
             //Lui和Auipc不用放进RS,直接计算,RoB里面设置成ready
+            //latest: Lui和Auipc也放进RS,方便广播
             if(ins.ins==Lui){
                 if(RoB->available()){
                     RoBentry tmp;
-                    tmp.ready=true;
+                    tmp.ready=false;
                     tmp.dest=ins.rd;
                     tmp.value=ins.imm;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF);
+                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Auipc){
                 if(RoB->available()){
                     RoBentry tmp;
-                    tmp.ready=true;
+                    tmp.ready=false;
                     tmp.dest=ins.rd;
                     tmp.value=ins.imm+ins.PC;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF);
+                    RS->add(ins,index,RF);
                     IQ_next.pop();
-                }else{
-                    pause_next=true;
                 }
             }else if(ins.ins==Jal){
                 if(RoB->available()){
                     RoBentry tmp;
-                    tmp.ready=true;
+                    tmp.ready=false;
                     tmp.dest=ins.rd;
                     tmp.value=ins.PC+4;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF);
+                    RS->add(ins,index,RF);
                     IQ_next.pop();
-                    PC_next=ins.PC+ins.imm;
-                }else{
-                    pause_next=true;
                 }
             }else if(ins.ins==Jalr){
-                if(!RoB->available()||RF->regs[ins.rs1].busy){//要RoB有空，并且需要的rs1可用才能执行
-                    pause_next=true;
-                }else{
+                if(RoB->available()&&RS->available()){
                     RoBentry tmp;
-                    tmp.ready=true;
+                    tmp.ready=false;
                     tmp.dest=ins.rd;
                     tmp.value=ins.PC+4;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF);
+                    RS->add_jalr(ins,index,RF);
                     IQ_next.pop();
-                    PC_next=RF->regs[ins.rs1].data+ins.imm;
                 }
             }else if(type==branch_){
                 if(RoB->available()&&RS->available()){

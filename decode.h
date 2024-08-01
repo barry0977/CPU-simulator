@@ -10,50 +10,49 @@ enum RoBtype{//传入RoB的指令类型
     store_,
     load_,
     branch_,
-    br_succeed,
-    br_fail,
+    else_,
     exit_,
 };
 
 enum Instr{//所有指令
-    Lui,
-    Auipc,
-    Jal,
-    Jalr,
-    Beq,
-    Bne,
-    Blt,
-    Bge,
-    Bltu,
-    Bgeu,
-    Lb,
-    Lh,
-    Lw,
-    Lbu,
-    Lhu,
-    Sb,
-    Sh,
-    Sw,
-    Addi,
-    Slti,
-    Sltiu,
-    Xori,
-    Ori,
-    Andi,
-    Slli,
-    Srli,
-    Srai,
-    Add,
-    Sub,
-    Sll,
-    Slt,
-    Sltu,
-    Xor,
-    Srl,
-    Sra,
-    Or,
-    And,
-    Exit
+    Lui,//0
+    Auipc,//1
+    Jal,//2
+    Jalr,//3
+    Beq,//4
+    Bne,//5
+    Blt,//6
+    Bge,//7
+    Bltu,//8
+    Bgeu,//9
+    Lb,//10
+    Lh,//11
+    Lw,//12
+    Lbu,//13
+    Lhu,//14
+    Sb,//15
+    Sh,//16
+    Sw,//17
+    Addi,//18
+    Slti,//19
+    Sltiu,//20
+    Xori,//21
+    Ori,//22
+    Andi,//23
+    Slli,//24
+    Srli,//25
+    Srai,//26
+    Add,//27
+    Sub,//28
+    Sll,//29
+    Slt,//30
+    Sltu,//31
+    Xor,//32
+    Srl,//33
+    Sra,//34
+    Or,//35
+    And,//36
+    Exit//37
 };
 
 struct InstructionUnit{//一条指令所包含的信息
@@ -77,7 +76,7 @@ InstructionUnit decode(int ins,unsigned int PC){
     int type=ins&(0b1111111);
     //先获得立即数
     if(type==0b0110111||type==0b0010111){  //U
-        imm=ins&(~0b111111111111u);
+        imm=ins&(0xFFFFF000);
         if(type==0b0110111){
             op=Lui;
         }else{
@@ -207,7 +206,8 @@ RoBtype get_RoBtype(Instr op){
         case Lui:
         case Auipc:
         case Jal:
-        case Jalr:
+        case Jalr:ans=else_;
+            break;
         case Lb:
         case Lh:
         case Lw:
