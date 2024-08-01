@@ -12,7 +12,7 @@ struct Register{
 };
 
 class RegisterFile{
-private:
+public:
     Register regs_next[32];
 public:
     Register regs[32];

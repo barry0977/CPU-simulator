@@ -8,6 +8,7 @@
 #include "decode.h"
 #include "bus.h"
 #include "registerfile.h"
+#include "cdb.h"
 
 class ReorderBuffer{
 private:
@@ -78,9 +79,9 @@ public:
         list_next.clear();
     }
 
-    void execute(RegisterFile *RF,Memory *mem){
-        commit(RF,mem);
-    }
+//    void execute(RegisterFile *RF,Memory *mem){
+//        commit(RF,mem);
+//    }
 
     void finish_calc(int index,int value){
         list_next[index].ready= true;
@@ -92,7 +93,12 @@ public:
         list_next[index].addr=value;
     }
 
-    int commit(RegisterFile *RF,Memory *mem){
+    int commit(RegisterFile *RF,Memory *mem,CDB *cdb){
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value;
+            RF->update_data(newinf.index,newinf);
+        }
         RoBentry top=list.top();
         if(top.ready){
             list_next.pop();
@@ -100,29 +106,46 @@ public:
                 CDB_value tmp;
                 tmp.value=top.value;
                 tmp.RoB_index=top.index;
-                RF->update_data(top.Itr.rd,tmp);
+                tmp.index=top.Itr.rd;
+//                RF->update_data(top.Itr.rd,tmp);
+                cdb->send(tmp);
             }else if(top.type==else_) {
                 if(top.Itr.ins==Jalr) {
                     CDB_value tmp;
                     tmp.value=top.value;
                     tmp.RoB_index=top.index;
-                    RF->update_data(top.Itr.rd,tmp);
+                    tmp.index=top.Itr.rd;
+//                    RF->update_data(top.Itr.rd,tmp);
+                    cdb->send(tmp);
                     return top.addr;
                 }else {
                     CDB_value tmp;
                     tmp.value=top.value;
                     tmp.RoB_index=top.index;
-                    RF->update_data(top.Itr.rd,tmp);
+                    tmp.index=top.Itr.rd;
+//                    RF->update_data(top.Itr.rd,tmp);
+                    cdb->send(tmp);
                 }
-            }else if(top.type==store_){//当store被commit时，前面都已经commit，可以直接从RF中读取
+            }else if(top.type==store_){//当store被commit时，前面都已经commit，可以直接从RF中读取(可能还没更新，要检查cdb)
                 int rs1=RF->regs[top.Itr.rs1].data,rs2=RF->regs[top.Itr.rs2].data;
-                int data=rs2&0xFF,index=rs1+top.Itr.imm;
+                if(cdb->num==1){
+                    if(cdb->update.index==top.Itr.rs1){
+                        rs1=cdb->update.value;
+                    }
+                    if(cdb->update.index==top.Itr.rs2){
+                        rs2=cdb->update.value;
+                    }
+                }
+                int data=rs2,index=rs1+top.Itr.imm;
+//                std::cout<<"将 "<<data<<" 存入 "<<index<<"\n";
                 mem->store(data,index,top.Itr.ins);
             }else if(top.type==load_){
                 CDB_value tmp;
                 tmp.value=top.value;
                 tmp.RoB_index=top.index;
-                RF->update_data(top.Itr.rd,tmp);
+                tmp.index=top.Itr.rd;
+//                RF->update_data(top.Itr.rd,tmp);
+                cdb->send(tmp);
             }else if(top.type==branch_){
                 if(top.value==1){//需要跳转
                     return top.addr;//返回需要跳转的地址

@@ -52,9 +52,10 @@ public:
         RF.refresh();
         LSB.refresh();
         IQ.refresh();
+        cdb.refresh();
     }
 
-    void flush(unsigned int addr){//清空RoB,RS和LSB，重置IQ的PC
+    void flush(unsigned int addr){//清空RoB,RS和LSB，重置寄存器状态，重置IQ的PC
         RoB.flush();
         RS.flush();
         LSB.flush();
@@ -63,12 +64,12 @@ public:
     }
 
     void execute(){
-        IQ.execute(&RoB,&RS,&LSB,&RF);
-        int res=RoB.commit(&RF,mem);
+        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb);
+        int res=RoB.commit(&RF,mem,&cdb);
         RS.execute(&alu,&RoB,&cdb);
         LSB.execute(mem,&RoB,&cdb);
-        RS.get_from_LSB(&cdb);//从LSB接受信息更新
-        LSB.get_from_RS(&cdb);//从RS接受信息更新
+//        RS.get_from_LSB(&cdb);//从LSB接受信息更新
+//        LSB.get_from_RS(&cdb);//从RS接受信息更新
         if(res>=0){//如果发现预测错误
             flush(res);
         }

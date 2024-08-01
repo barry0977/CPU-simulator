@@ -117,6 +117,7 @@ public:
     }
 
     void store_byte(int data,int index){//写入一个字节
+        data=data&0xFF;
         int addr=index-index%4;
         int order=index%4;
         if(order==0){
@@ -135,6 +136,7 @@ public:
     }
 
     void store_half(int data,int index){//写入两个字节
+        data=data&0xFFFF;
         int addr=index-index%4;
         int order=index%4;
         if(order==0){

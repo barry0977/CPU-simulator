@@ -39,7 +39,7 @@ public:
         return false;
     }
 
-    void add_jalr(InstructionUnit ins,int number,RegisterFile *RF){
+    void add_jalr(InstructionUnit ins,int number,RegisterFile *RF,CDB *cdb){
         int index=-1;
         for(int i=0;i<RSsize;i++){
             if(!rs[i].busy){
@@ -58,6 +58,12 @@ public:
                 tmp.qj=-1;
             }else{
                 tmp.qj=RF->regs[ins.rs1].rely;
+                if(cdb->num==1){
+                    if(cdb->update.RoB_index==tmp.qj){
+                        tmp.vj=cdb->update.value;
+                        tmp.qj=-1;
+                    }
+                }
             }
             tmp.vk=ins.imm;
             tmp.qk=-1;
@@ -68,7 +74,7 @@ public:
         }
     }
 
-    void add(InstructionUnit ins,int number,RegisterFile *RF){
+    void add(InstructionUnit ins,int number,RegisterFile *RF,CDB *cdb){
         int index=-1;
         for(int i=0;i<RSsize;i++){
             if(!rs[i].busy){
@@ -91,6 +97,12 @@ public:
                     tmp.qj=-1;
                 }else{//否则，将依赖的编号存入qj
                     tmp.qj=RF->regs[ins.rs1].rely;
+                    if(cdb->num==1){
+                        if(cdb->update.RoB_index==tmp.qj){
+                            tmp.vj=cdb->update.value;
+                            tmp.qj=-1;
+                        }
+                    }
                 }
 
                 if(!RF->regs[ins.rs2].busy){//如果没有依赖，直接读取数值
@@ -98,6 +110,12 @@ public:
                     tmp.qk=-1;
                 }else{//否则，将依赖的编号存入qk
                     tmp.qk=RF->regs[ins.rs2].rely;
+                    if(cdb->num==1){
+                        if(cdb->update.RoB_index==tmp.qk){
+                            tmp.vk=cdb->update.value;
+                            tmp.qk=-1;
+                        }
+                    }
                 }
             }else if(num==1){
                 if(!RF->regs[ins.rs1].busy){//如果没有依赖，直接读取数值
@@ -105,6 +123,12 @@ public:
                     tmp.qj=-1;
                 }else{//否则，将依赖的编号存入qj
                     tmp.qj=RF->regs[ins.rs1].rely;
+                    if(cdb->num==1){
+                        if(cdb->update.RoB_index==tmp.qj){
+                            tmp.vj=cdb->update.value;
+                            tmp.qj=-1;
+                        }
+                    }
                 }
 
                 tmp.vk=ins.imm;
@@ -128,6 +152,10 @@ public:
     }
 
     void execute(ALU *alu,ReorderBuffer *RoB,CDB *cdb){//选出一条可以执行的指令，将计算结果交给RoB，并通知更新所有RS
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+            broadcast(newinf);
+        }
         for(int i=0;i<RSsize;i++){
             if(rs[i].busy){//有指令
                 if(rs[i].qj==-1&&rs[i].qk==-1){//可以执行
@@ -136,20 +164,20 @@ public:
                         RoB->finish_jalr(rs[i].RoBindex,PCaddr);//传入要去的地址
                         RoB->finish_calc(rs[i].RoBindex,rs[i].result);//传入修改的寄存器的值
                         rs_next[i].busy=false;
-                        CDB_value obj;
-                        obj.RoB_index=rs[i].RoBindex;
-                        obj.value=rs[i].result;
-                        broadcast(obj);
-                        cdb->send_value(obj,toLSB);
+//                        CDB_value obj;
+//                        obj.RoB_index=rs[i].RoBindex;
+//                        obj.value=rs[i].result;
+//                        broadcast(obj);
+//                        cdb->send_value(obj,toLSB);
                     }else{
                         int result=alu->execute(rs[i].op,rs[i].vj,rs[i].vk);//通过alu运算
                         rs_next[i].busy= false;
                         RoB->finish_calc(rs[i].RoBindex,result);
-                        CDB_value obj;
-                        obj.RoB_index=rs[i].RoBindex;
-                        obj.value=result;
-                        broadcast(obj);
-                        cdb->send_value(obj,toLSB);
+//                        CDB_value obj;
+//                        obj.RoB_index=rs[i].RoBindex;
+//                        obj.value=result;
+//                        broadcast(obj);
+//                        cdb->send_value(obj,toLSB);
                     }
                     break;
                 }
@@ -174,12 +202,12 @@ public:
         }
     }
 
-    void get_from_LSB(CDB *cdb){
-        package get=cdb->get_value(toRS);
-        if(get.has){
-            broadcast(get.data);
-        }
-    }
+//    void get_from_LSB(CDB *cdb){
+//        package get=cdb->get_value(toRS);
+//        if(get.has){
+//            broadcast(get.data);
+//        }
+//    }
 };
 
 #endif //CODE_RESERVATIONSTATION_H

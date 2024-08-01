@@ -8,6 +8,7 @@
 //#include "decode.h"
 #include "myqueue.h"
 //#include "bus.h"
+#include "cdb.h"
 
 class InstructionQueue{
 private:
@@ -59,14 +60,14 @@ public:
         }
     }
 
-    void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF){
+    void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb){
         if(!pause){
             IF();
         }
-        launch(RoB,RS,LSB,RF);
+        launch(RoB,RS,LSB,RF,cdb);
     }
 
-    void launch(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF){
+    void launch(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb){
         if(IQ.empty()){
             return;
         }
@@ -75,7 +76,7 @@ public:
         if(type==store_||type==load_){
             if(RoB->available()&&LSB->available()){//如果都可用，则加入
                 int index=RoB->issue(ins,RF);
-                LSB->add(ins,index,RF);
+                LSB->add(ins,index,RF,cdb);
                 IQ_next.pop();
             }
         }else{
@@ -84,37 +85,37 @@ public:
             if(ins.ins==Lui){
                 if(RoB->available()){
                     RoBentry tmp;
-                    tmp.ready=false;
+                    tmp.ready=true;
                     tmp.dest=ins.rd;
                     tmp.value=ins.imm;
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-                    RS->add(ins,index,RF);
+//                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Auipc){
                 if(RoB->available()){
                     RoBentry tmp;
-                    tmp.ready=false;
+                    tmp.ready=true;
                     tmp.dest=ins.rd;
                     tmp.value=ins.imm+ins.PC;
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-                    RS->add(ins,index,RF);
+//                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Jal){
                 if(RoB->available()){
                     RoBentry tmp;
-                    tmp.ready=false;
+                    tmp.ready= true;
                     tmp.dest=ins.rd;
                     tmp.value=ins.PC+4;
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-                    RS->add(ins,index,RF);
+//                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Jalr){
@@ -126,7 +127,7 @@ public:
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-                    RS->add_jalr(ins,index,RF);
+                    RS->add_jalr(ins,index,RF,cdb);
                     IQ_next.pop();
                 }
             }else if(type==branch_){
@@ -138,13 +139,13 @@ public:
                     tmp.type=type;
                     tmp.dest=-1;//没有目标寄存器
                     int index=RoB->issue(tmp,RF);
-                    RS->add(ins,index,RF);
+                    RS->add(ins,index,RF,cdb);
                     IQ_next.pop();
                 }
             }else{
                 if(RoB->available()&&RS->available()){
                     int index=RoB->issue(ins,RF);
-                    RS->add(ins,index,RF);
+                    RS->add(ins,index,RF,cdb);
                     IQ_next.pop();
                 }
             }

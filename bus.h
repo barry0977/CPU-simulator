@@ -9,6 +9,7 @@
 struct CDB_value{
     int value;//计算出来的结果
     int RoB_index;//在RoB中的编号
+    int index;//寄存器的编号
 };
 
 struct RoBentry{

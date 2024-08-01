@@ -145,7 +145,7 @@ InstructionUnit decode(int ins,unsigned int PC){
             op=Bgeu;
         }
     }else if(type==0b0100011){  //S
-        imm=((ins>>25)&0b1111111<<5)|((ins>>7)&0b11111);
+        imm=(((ins>>25)&0b1111111)<<5)|((ins>>7)&0b11111);
         imm=static_cast<int>(imm<<20)>>20;
 
         rd=-1;//S指令没有目的寄存器

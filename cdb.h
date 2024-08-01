@@ -18,12 +18,24 @@ struct package{
 };
 
 class CDB{
+private:
+    CDB_value update_next;
+    int num_next=0;
 public:
     package st[2];
     int cnt=0;
+    CDB_value update;
+    int num=0;
 
     void refresh(){
-        cnt=0;
+        update=update_next;
+        num=num_next;
+        num_next=0;
+    }
+
+    void send(CDB_value obj){
+        update_next=obj;
+        num_next=1;
     }
 
     void send_value(CDB_value obj,client towho){
