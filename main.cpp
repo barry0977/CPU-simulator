@@ -1,3 +1,4 @@
+#pragma GCC optimize(3,"Ofast","inline")
 #include <iostream>
 #include <bitset>
 #include "memory.h"

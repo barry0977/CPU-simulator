@@ -33,10 +33,6 @@ public:
         if(list.empty()){
             std::cout<<"RoB is empty\n";
         }else{
-//            int beg=(list.front+1)%20;
-//            for(int i=beg;i<=list.rear;i=(i+1)%20){
-//                std::cout<<list[i].Itr.ins<<" dest:"<<list[i].dest<<" value:"<<list[i].value<<" ready:"<<list[i].ready<<std::endl;
-//            }
             int beg=list.front;
             int end=list.rear;
             if(end>beg){
@@ -152,7 +148,6 @@ public:
                 tmp.value=top.value;
                 tmp.RoB_index=top.index;
                 tmp.index=top.Itr.rd;
-//                std::cout<<"提交指令 "<<top.Itr.ins<<" 得到："<<"CDB: value: "<<tmp.value<<" RoBindex: "<<tmp.RoB_index<<" RFindex: "<<tmp.index<<"\n";
                 cdb->send(tmp);
             }else if(top.type==branch_){
                 if(top.value==1){//需要跳转

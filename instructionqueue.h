@@ -93,7 +93,6 @@ public:
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-//                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Auipc){
@@ -105,7 +104,6 @@ public:
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-//                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Jal){
@@ -117,7 +115,6 @@ public:
                     tmp.type=type;
                     tmp.Itr=ins;
                     int index=RoB->issue(tmp,RF);
-//                    RS->add(ins,index,RF);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Jalr){

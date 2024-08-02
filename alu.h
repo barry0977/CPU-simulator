@@ -38,6 +38,7 @@ public:
             case Srl:return SRL(rs1,rs2);
             case Sra:return SRA(rs1,rs2);
             case Sub:return SUB(rs1,rs2);
+            default:return -1;
         }
     }
 

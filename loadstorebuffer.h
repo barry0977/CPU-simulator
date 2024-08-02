@@ -40,11 +40,6 @@ public:
         if(LSB_list.empty()){
             std::cout<<"LSB is empty\n";
         }else{
-//            int beg=(LSB_list.front+1)%LSBsize;
-//            for(int i=beg;i<=LSB_list.rear;i=(i+1)%LSBsize){
-//                std::cout<<LSB_list[i].op<<" index in RoB:"<<LSB_list[i].RoBindex<<" vj:"<<LSB_list[i].vj<<" qj:"<<LSB_list[i].qj<<" vk:"<<LSB_list[i].vk<<" qk:"<<LSB_list[i].qk<<" imm:"<<LSB_list[i].imm<<std::endl;
-//            }
-//            //
             int beg=LSB_list.front;
             int end=LSB_list.rear;
             if(end>beg){

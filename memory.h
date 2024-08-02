@@ -113,6 +113,7 @@ public:
             case Lw:return load_word(index);
             case Lbu:return load_byte_u(index);
             case Lhu:return load_half_u(index);
+            default:return load_word(index);
         }
     }
 
