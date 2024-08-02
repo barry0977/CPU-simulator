@@ -4,7 +4,7 @@
 #include "memory.h"
 #include "cpu.h"
 int main(){
-//    freopen("in.txt","r",stdin);
+    freopen("in.txt","r",stdin);
 //    freopen("out.txt","w",stdout);
     Memory memory;
     memory.read();

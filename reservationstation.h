@@ -204,14 +204,14 @@ public:
 
     void broadcast(CDB_value res){//模拟计算出的结果通过CDB向RS广播
         for(int i=0;i<RSsize;i++){
-            if(!rs[i].busy){
+            if(!rs_next[i].busy){
                 continue;
             }else{
-                if(rs[i].qj==res.RoB_index){//如果qj的依赖正好是广播的指令，则更新依赖
+                if(rs_next[i].qj==res.RoB_index){//如果qj的依赖正好是广播的指令，则更新依赖
                     rs_next[i].qj=-1;
                     rs_next[i].vj=res.value;
                 }
-                if(rs[i].qk==res.RoB_index){
+                if(rs_next[i].qk==res.RoB_index){
                     rs_next[i].qk=-1;
                     rs_next[i].vk=res.value;
                 }

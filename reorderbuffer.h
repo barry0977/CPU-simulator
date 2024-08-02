@@ -13,6 +13,7 @@
 const int RoBsize=32;
 class ReorderBuffer{
 private:
+    int cnt=0;
     Queue<RoBentry,RoBsize>list_next;
 public:
     Queue<RoBentry,RoBsize>list;
@@ -123,7 +124,9 @@ public:
         RoBentry top=list.top();
         if(top.ready){
             list_next.pop();
-//            std::cout<<std::dec<<"pc="<<top.Itr.PC<<" type="<<InstrNames[top.Itr.ins]<<" rd="<<top.Itr.rd<<" rs1="<<top.Itr.rs1<<" rs2="<<top.Itr.rs2<<" imm="<<top.Itr.imm<<std::endl;
+            cnt++;
+//            std::cout<<"commit ----------------------------------------------------------------------------------\n";
+//            std::cout<<std::dec<<"pc="<<top.Itr.PC<<" type="<<InstrNames[top.Itr.ins]<<" rd="<<top.Itr.rd<<" rs1="<<top.Itr.rs1<<" rs2="<<top.Itr.rs2<<" imm="<<top.Itr.imm<<" "<<cnt<<std::endl;
 //            std::cout<<"commit | "<<top.Itr.ins<<" "<<top.Itr.PC<<std::endl;
 //            RF->show();
             if(top.type==toreg){
