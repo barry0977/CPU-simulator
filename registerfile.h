@@ -27,14 +27,15 @@ public:
     void show(){
         std::cout<<"----------- RF ---------------------\n";
         for(int i=0;i<32;i++){
+//            std::cout<<std::dec<<regs[i].data<<" ";
             std::cout<<"reg "<<i<<": "<<regs[i].data<<" next state: "<<regs_next[i].data;
             if(regs[i].busy){
                 std::cout<<" . rely is "<<regs[i].rely<<std::endl;
             }else{
                 std::cout<<" . no rely "<<std::endl;
             }
-
         }
+        std::cout<<std::endl;
     }
 
     void refresh(){

@@ -50,7 +50,6 @@ public:
         }
         InstructionUnit Ins= decode(itr,PC);
 //        std::cout<<"当前获取的指令："<<Ins.ins<<" rs1:"<<Ins.rs1<<" rs2:"<<Ins.rs2<<" rd:"<<Ins.rd<<" imm:"<<Ins.imm<<" PC:"<<Ins.PC<<"\n";
-        IQ_next.push(Ins);
         if(Ins.ins==Jal){
             PC_next=PC+Ins.imm;
         }else if(Ins.ins==Exit){
@@ -58,18 +57,22 @@ public:
         }else if(Ins.ins==Jalr){
             pause=true;
         }else{
-            RoBtype type= get_RoBtype(Ins.ins);
-            if(type==branch_){
-                bool tojump=pre->predict(PC);
-                if(tojump){//预测跳转
-                    PC_next=Ins.PC+Ins.imm;//将PC设置为要跳转的地址
-                }else{
-                    PC_next=PC+4;
-                }
-            }else{
-                PC_next=PC+4;
-            }
+//            RoBtype type= get_RoBtype(Ins.ins);
+//            if(type==branch_){
+//                bool tojump=pre->predict(PC);
+//                if(tojump){//预测跳转
+//                    Ins.isjump=true;
+//                    PC_next=Ins.PC+Ins.imm;//将PC设置为要跳转的地址
+//                }else{
+//                    Ins.isjump=false;
+//                    PC_next=PC+4;
+//                }
+//            }else{
+//                PC_next=PC+4;
+//            }
+            PC_next=PC+4;
         }
+        IQ_next.push(Ins);
     }
 
     void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb,Predictor *pre){
@@ -147,6 +150,7 @@ public:
                     tmp.Itr=ins;
                     tmp.type=type;
                     tmp.dest=-1;//没有目标寄存器
+                    tmp.isjump=ins.isjump;
                     int index=RoB->issue(tmp,RF,ins.PC);
                     RS->add(ins,index,RF,cdb);
                     IQ_next.pop();

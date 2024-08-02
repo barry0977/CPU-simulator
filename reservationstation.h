@@ -19,6 +19,10 @@ public:
     RSunit rs[RSsize];
 public:
     void refresh(){
+//        if(cdb->num==1){
+//            CDB_value newinf=cdb->update;
+//            broadcast(newinf);
+//        }
         for(int i=0;i<RSsize;i++){
             rs[i]=rs_next[i];
         }
@@ -64,6 +68,10 @@ public:
                         tmp.qj=-1;
                     }
                 }
+                if(RF->regs[ins.rs1].rely==number){
+                    tmp.vj=RF->regs[ins.rs1].data;
+                    tmp.qj=-1;
+                }
             }
             tmp.vk=ins.imm;
             tmp.qk=-1;
@@ -103,6 +111,10 @@ public:
                             tmp.qj=-1;
                         }
                     }
+                    if(RF->regs[ins.rs1].rely==number){
+                        tmp.vj=RF->regs[ins.rs1].data;
+                        tmp.qj=-1;
+                    }
                 }
 
                 if(!RF->regs[ins.rs2].busy){//如果没有依赖，直接读取数值
@@ -115,6 +127,10 @@ public:
                             tmp.vk=cdb->update.value;
                             tmp.qk=-1;
                         }
+                    }
+                    if(RF->regs[ins.rs2].rely==number){
+                        tmp.vk=RF->regs[ins.rs2].data;
+                        tmp.qk=-1;
                     }
                 }
             }else if(num==1){
@@ -129,6 +145,10 @@ public:
                             tmp.qj=-1;
                         }
                     }
+                    if(RF->regs[ins.rs1].rely==number){
+                        tmp.vj=RF->regs[ins.rs1].data;
+                        tmp.qj=-1;
+                    }
                 }
 
                 tmp.vk=ins.imm;
@@ -139,6 +159,13 @@ public:
                 tmp.vk=ins.PC;
             }
             rs_next[index]=tmp;
+        }
+    }
+
+    void update(CDB *cdb){
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+            broadcast(newinf);
         }
     }
 
@@ -164,20 +191,10 @@ public:
                         RoB->finish_jalr(rs[i].RoBindex,PCaddr);//传入要去的地址
                         RoB->finish_calc(rs[i].RoBindex,rs[i].result);//传入修改的寄存器的值
                         rs_next[i].busy=false;
-//                        CDB_value obj;
-//                        obj.RoB_index=rs[i].RoBindex;
-//                        obj.value=rs[i].result;
-//                        broadcast(obj);
-//                        cdb->send_value(obj,toLSB);
                     }else{
                         int result=alu->execute(rs[i].op,rs[i].vj,rs[i].vk);//通过alu运算
                         rs_next[i].busy= false;
                         RoB->finish_calc(rs[i].RoBindex,result);
-//                        CDB_value obj;
-//                        obj.RoB_index=rs[i].RoBindex;
-//                        obj.value=result;
-//                        broadcast(obj);
-//                        cdb->send_value(obj,toLSB);
                     }
                     break;
                 }
@@ -201,13 +218,6 @@ public:
             }
         }
     }
-
-//    void get_from_LSB(CDB *cdb){
-//        package get=cdb->get_value(toRS);
-//        if(get.has){
-//            broadcast(get.data);
-//        }
-//    }
 };
 
 #endif //CODE_RESERVATIONSTATION_H

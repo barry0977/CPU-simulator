@@ -265,9 +265,9 @@ Disassembly of section .text:
     139c:	00000793          	li	a5,0
     13a0:	00178793          	addi	a5,a5,1
     13a4:	00f70c63          	beq	a4,a5,13bc <merge+0xb8>
-    13a8:	00468693          	addi	a3,a3,4
-    13ac:	ffc6a603          	lw	a2,-4(a3)
-    13b0:	fe0618e3          	bnez	a2,13a0 <merge+0x9c>
+    13a8:	00468693          	addi	a3,a3,4//
+    13ac:	ffc6a603          	lw	a2,-4(a3)//
+    13b0:	fe0618e3          	bnez	a2,13a0 <merge+0x9c>//
     13b4:	00001737          	lui	a4,0x1
     13b8:	6ef72023          	sw	a5,1760(a4) # 16e0 <now>
     13bc:	00c12083          	lw	ra,12(sp)

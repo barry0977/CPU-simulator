@@ -210,6 +210,7 @@ CMakeFiles/code.dir/main.cpp.o: ../main.cpp \
   ../bus.h \
   ../registerfile.h \
   ../cdb.h \
+  ../predictor.h \
   ../reservationstation.h \
   ../alu.h \
   ../loadstorebuffer.h \
@@ -223,6 +224,8 @@ CMakeFiles/code.dir/main.cpp.o: ../main.cpp \
 ../myqueue.h:
 
 ../reorderbuffer.h:
+
+../predictor.h:
 
 ../cpu.h:
 

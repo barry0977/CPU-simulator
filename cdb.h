@@ -25,6 +25,8 @@ public:
     CDB_value update;
     int num=0;
 
+
+
     void show(){
         if(num==0){
             std::cout<<"CDB is empty\n";
@@ -34,12 +36,15 @@ public:
     }
 
     void refresh(){
+//        num=0;
         update=update_next;
         num=num_next;
         num_next=0;
     }
 
     void send(CDB_value obj){
+//        update=obj;
+//        num=1;
         update_next=obj;
         num_next=1;
     }

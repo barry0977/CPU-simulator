@@ -20,7 +20,8 @@ struct RoBentry{
     int dest;//对应的目标寄存器
     int value;//计算出来的值
     int addr;//记录可能跳转的地址（用于branch指令）
-    unsigned pc;//指令所在的位置
+    unsigned int pc;//指令所在的位置
+    bool isjump;
 };
 
 struct RSunit{

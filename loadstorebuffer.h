@@ -20,6 +20,10 @@ public:
 
 public:
     void refresh(){
+//        if(cdb->num==1){
+//            CDB_value newinf=cdb->update;
+//            broadcast(newinf);
+//        }
         LSB_list=LSB_list_next;
     }
 
@@ -79,6 +83,10 @@ public:
                                 tmp.qj=-1;
                             }
                         }
+                        if(RF->regs[Ins.rs1].rely==index){
+                            tmp.vj=RF->regs[Ins.rs1].data;
+                            tmp.qj=-1;
+                        }
                     }
                     tmp.imm=Ins.imm;
                     break;
@@ -97,6 +105,10 @@ public:
                                 tmp.qj=-1;
                             }
                         }
+                        if(RF->regs[Ins.rs1].rely==index){
+                            tmp.vj=RF->regs[Ins.rs1].data;
+                            tmp.qj=-1;
+                        }
                     }
 
                     if(!RF->regs[Ins.rs2].busy){//如果没有依赖，直接读取数值
@@ -110,6 +122,10 @@ public:
                                 tmp.qk=-1;
                             }
                         }
+                        if(RF->regs[Ins.rs2].rely==index){
+                            tmp.vk=RF->regs[Ins.rs2].data;
+                            tmp.qk=-1;
+                        }
                     }
 
                     tmp.imm=Ins.imm;
@@ -119,6 +135,13 @@ public:
                     break;
             }
             LSB_list_next.push(tmp);
+        }
+    }
+
+    void update(CDB *cdb){
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+            broadcast(newinf);
         }
     }
 

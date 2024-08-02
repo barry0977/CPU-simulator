@@ -163,7 +163,7 @@ CMakeFiles/code.dir/main.cpp.o: /mnt/e/clion/CPU-simulator/main.cpp \
  /mnt/e/clion/CPU-simulator/reorderbuffer.h \
  /mnt/e/clion/CPU-simulator/myqueue.h /mnt/e/clion/CPU-simulator/bus.h \
  /mnt/e/clion/CPU-simulator/registerfile.h \
- /mnt/e/clion/CPU-simulator/cdb.h \
+ /mnt/e/clion/CPU-simulator/cdb.h /mnt/e/clion/CPU-simulator/predictor.h \
  /mnt/e/clion/CPU-simulator/reservationstation.h \
  /mnt/e/clion/CPU-simulator/alu.h \
  /mnt/e/clion/CPU-simulator/loadstorebuffer.h \
