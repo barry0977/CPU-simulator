@@ -7,6 +7,7 @@
 #include "memory.h"
 #include "myqueue.h"
 #include "cdb.h"
+#include "predictor.h"
 
 class InstructionQueue{
 private:
@@ -40,9 +41,8 @@ public:
         pause=false;
     }
 
-    void IF(){
+    void IF(Predictor *pre){
         unsigned int itr=0;
-        PC;
         itr=mem->read_word(PC);
         if(itr==0){
             pause=true;
@@ -58,13 +58,23 @@ public:
         }else if(Ins.ins==Jalr){
             pause=true;
         }else{
-            PC_next=PC+4;
+            RoBtype type= get_RoBtype(Ins.ins);
+            if(type==branch_){
+                bool tojump=pre->predict(PC);
+                if(tojump){//预测跳转
+                    PC_next=Ins.PC+Ins.imm;//将PC设置为要跳转的地址
+                }else{
+                    PC_next=PC+4;
+                }
+            }else{
+                PC_next=PC+4;
+            }
         }
     }
 
-    void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb){
+    void execute(ReorderBuffer *RoB,ReservationStation *RS,LoadStoreBuffer *LSB,RegisterFile *RF,CDB *cdb,Predictor *pre){
         if(!pause){
-            IF();
+            IF(pre);
         }
         launch(RoB,RS,LSB,RF,cdb);
     }
@@ -77,7 +87,7 @@ public:
         RoBtype type= get_RoBtype(ins.ins);
         if(type==store_||type==load_){
             if(RoB->available()&&LSB->available()){//如果都可用，则加入
-                int index=RoB->issue(ins,RF);
+                int index=RoB->issue(ins,RF,ins.PC);
                 LSB->add(ins,index,RF,cdb);
                 IQ_next.pop();
             }
@@ -92,7 +102,7 @@ public:
                     tmp.value=ins.imm;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    int index=RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF,ins.PC);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Auipc){
@@ -103,7 +113,7 @@ public:
                     tmp.value=ins.imm+ins.PC;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    int index=RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF,ins.PC);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Jal){
@@ -114,7 +124,7 @@ public:
                     tmp.value=ins.PC+4;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    int index=RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF,ins.PC);
                     IQ_next.pop();
                 }
             }else if(ins.ins==Jalr){
@@ -125,7 +135,7 @@ public:
                     tmp.value=ins.PC+4;
                     tmp.type=type;
                     tmp.Itr=ins;
-                    int index=RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF,ins.PC);
                     RS->add_jalr(ins,index,RF,cdb);
                     IQ_next.pop();
                 }
@@ -137,13 +147,13 @@ public:
                     tmp.Itr=ins;
                     tmp.type=type;
                     tmp.dest=-1;//没有目标寄存器
-                    int index=RoB->issue(tmp,RF);
+                    int index=RoB->issue(tmp,RF,ins.PC);
                     RS->add(ins,index,RF,cdb);
                     IQ_next.pop();
                 }
             }else{
                 if(RoB->available()&&RS->available()){
-                    int index=RoB->issue(ins,RF);
+                    int index=RoB->issue(ins,RF,ins.PC);
                     RS->add(ins,index,RF,cdb);
                     IQ_next.pop();
                 }

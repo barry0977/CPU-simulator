@@ -9,6 +9,7 @@
 #include "bus.h"
 #include "registerfile.h"
 #include "cdb.h"
+#include "predictor.h"
 const int RoBsize=32;
 class ReorderBuffer{
 private:
@@ -45,7 +46,7 @@ public:
         }
     }
 
-    int issue(InstructionUnit ins,RegisterFile *RF){
+    int issue(InstructionUnit ins,RegisterFile *RF,unsigned int PC){
         if(list.full()){
             std::cout<<"RoB is full\n";
             return -1;
@@ -57,6 +58,7 @@ public:
             tmp.ready=false;
             tmp.index=index;
             tmp.Itr=ins;
+            tmp.pc=PC;
             if(tmp.dest>=0){
                 RF->add_dependency(tmp.dest,tmp.index);
             }
@@ -65,13 +67,14 @@ public:
         }
     }
 
-    int issue(RoBentry res,RegisterFile *RF){
+    int issue(RoBentry res,RegisterFile *RF,unsigned int PC){
         if(list.full()){
             std::cout<<"RoB is full\n";
             return -1;
         }else{
             int index=list.get_tail();
             res.index=index;
+            res.pc=PC;
             if(res.dest>=0){
                 RF->add_dependency(res.dest,index);
             }
@@ -95,7 +98,7 @@ public:
         list_next[index].addr=value;
     }
 
-    int commit(RegisterFile *RF,Memory *mem,CDB *cdb){
+    int commit(RegisterFile *RF,Memory *mem,CDB *cdb,Predictor *pre){
         if(cdb->num==1){
             CDB_value newinf=cdb->update;
 //            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value<<"\n";
@@ -150,9 +153,24 @@ public:
                 tmp.index=top.Itr.rd;
                 cdb->send(tmp);
             }else if(top.type==branch_){
-                if(top.value==1){//需要跳转
-                    return top.addr;//返回需要跳转的地址
+                if(top.value==1){//如果需要跳转
+                    if(pre->predict(top.pc)){//预测需要跳转
+                        pre->update_predict(top.pc, true);
+                    }else{//预测不需要跳转
+                        pre->update_predict(top.pc, true);
+                        return top.addr;
+                    }
+                }else{//如果不需要跳转
+                    if(pre->predict(top.pc)){//预测需要跳转
+                        pre->update_predict(top.pc, false);
+                        return top.pc+4;
+                    }else{//预测不需要跳转
+                        pre->update_predict(top.pc, false);
+                    }
                 }
+//                if(top.value==1){//需要跳转
+//                    return top.addr;//返回需要跳转的地址
+//                }
             }else if(top.type==exit_){
                 std::cout<<static_cast<unsigned int>(RF->regs[10].data&0xFF)<<std::endl;
                 exit(0);

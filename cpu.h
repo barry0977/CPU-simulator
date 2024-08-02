@@ -11,6 +11,7 @@
 #include "instructionqueue.h"
 #include "alu.h"
 #include "cdb.h"
+#include "predictor.h"
 
 class CPU{
 private:
@@ -22,6 +23,7 @@ private:
     InstructionQueue IQ;
     ALU alu;
     CDB cdb;
+    Predictor pre;
 
 public:
     CPU(Memory *memory){
@@ -67,8 +69,8 @@ public:
     }
 
     void execute(){
-        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb);
-        int res=RoB.commit(&RF,mem,&cdb);
+        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
+        int res=RoB.commit(&RF,mem,&cdb,&pre);
         RS.execute(&alu,&RoB,&cdb);
         LSB.execute(mem,&RoB,&cdb);
         if(res>=0){//如果发现预测错误
