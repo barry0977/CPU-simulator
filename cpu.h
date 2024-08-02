@@ -37,22 +37,22 @@ public:
     void run(){
         int clk=0;
         while(true){
-//            std::cout<<"clk: "<<clk<<std::endl;
+            std::cout<<"clk: "<<clk<<std::endl;
             clk++;
             execute();
-//            RF.show();
-//            RoB.show();
-//            RS.show();
-//            LSB.show();
+            RF.show();
+            RoB.show();
+            RS.show();
+            LSB.show();
             refresh();
         }
     }
 
     void refresh(){
-        RoB.refresh();
-        RS.refresh();
+        RoB.refresh(&cdb,&RF);
+        RS.refresh(&cdb);
         RF.refresh();
-        LSB.refresh();
+        LSB.refresh(&cdb);
         IQ.refresh();
         cdb.refresh();
     }
@@ -68,14 +68,14 @@ public:
     }
 
     void execute(){
-        LSB.execute(mem,&RoB,&cdb);
-        RS.execute(&alu,&RoB,&cdb);
-        int res=RoB.commit(&RF,mem,&cdb,&pre);
-        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
-//        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
-//        int res=RoB.commit(&RF,mem,&cdb,&pre);
-//        RS.execute(&alu,&RoB,&cdb);
 //        LSB.execute(mem,&RoB,&cdb);
+//        RS.execute(&alu,&RoB,&cdb);
+//        int res=RoB.commit(&RF,mem,&cdb,&pre);
+//        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
+        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
+        int res=RoB.commit(&RF,mem,&cdb,&pre);
+        RS.execute(&alu,&RoB,&cdb);
+        LSB.execute(mem,&RoB,&cdb);
         if(res>=0){//如果发现预测错误
             flush(res);
         }

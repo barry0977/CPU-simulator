@@ -19,7 +19,11 @@ public:
     Queue<LSBentry,LSBsize>LSB_list;
 
 public:
-    void refresh(){
+    void refresh(CDB *cdb){
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+            broadcast(newinf);
+        }
         LSB_list=LSB_list_next;
     }
 
@@ -134,13 +138,6 @@ public:
         }
     }
 
-    void update(CDB *cdb){
-        if(cdb->num==1){
-            CDB_value newinf=cdb->update;
-            broadcast(newinf);
-        }
-    }
-
     void broadcast(CDB_value res){
         if(LSB_list_next.empty()){
             return;
@@ -173,10 +170,10 @@ public:
     }
 
     void execute(Memory *mem,ReorderBuffer *RoB,CDB *cdb){
-        if(cdb->num==1){
-            CDB_value newinf=cdb->update;
-            broadcast(newinf);
-        }
+//        if(cdb->num==1){
+//            CDB_value newinf=cdb->update;
+//            broadcast(newinf);
+//        }
         if(!LSB_list.empty()){
             LSBentry obj=LSB_list.top();
             switch (obj.op) {

@@ -18,11 +18,11 @@ private:
 public:
     RSunit rs[RSsize];
 public:
-    void refresh(){
-//        if(cdb->num==1){
-//            CDB_value newinf=cdb->update;
-//            broadcast(newinf);
-//        }
+    void refresh(CDB *cdb){
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+            broadcast(newinf);
+        }
         for(int i=0;i<RSsize;i++){
             rs[i]=rs_next[i];
         }
@@ -159,13 +159,6 @@ public:
                 tmp.vk=ins.PC;
             }
             rs_next[index]=tmp;
-        }
-    }
-
-    void update(CDB *cdb){
-        if(cdb->num==1){
-            CDB_value newinf=cdb->update;
-            broadcast(newinf);
         }
     }
 

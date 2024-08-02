@@ -13,12 +13,15 @@
 const int RoBsize=32;
 class ReorderBuffer{
 private:
-    int cnt=0;
     Queue<RoBentry,RoBsize>list_next;
 public:
     Queue<RoBentry,RoBsize>list;
 public:
-    void refresh(){
+    void refresh(CDB *cdb,RegisterFile *RF){
+        if(cdb->num==1){
+            CDB_value newinf=cdb->update;
+            RF->update_data(newinf.index,newinf);
+        }
         list=list_next;
     }
 
@@ -100,10 +103,10 @@ public:
     }
 
     int commit(RegisterFile *RF,Memory *mem,CDB *cdb,Predictor *pre){
-        if(cdb->num==1){
-            CDB_value newinf=cdb->update;
-            RF->update_data(newinf.index,newinf);
-        }
+//        if(cdb->num==1){
+//            CDB_value newinf=cdb->update;
+//            RF->update_data(newinf.index,newinf);
+//        }
         if(list.empty()){//如果空则不会进行commit
             return -1;
         }
@@ -147,7 +150,6 @@ public:
                     }
                 }
                 int data=rs2,index=rs1+top.Itr.imm;
-//                std::cout<<"将 "<<data<<" 存入 "<<index<<"\n";
                 mem->store(data,index,top.Itr.ins);
             }else if(top.type==load_){
                 CDB_value tmp;
