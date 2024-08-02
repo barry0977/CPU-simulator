@@ -115,7 +115,6 @@ public:
             list_next.pop();
 //            cnt++;
 //            std::cout<<"commit ----------------------------------------------------------------------------------\n";
-//            std::cout<<std::dec<<"pc="<<top.Itr.PC<<" type="<<InstrNames[top.Itr.ins]<<" rd="<<top.Itr.rd<<" rs1="<<top.Itr.rs1<<" rs2="<<top.Itr.rs2<<" imm="<<top.Itr.imm<<" "<<cnt<<std::endl;
 //            std::cout<<"commit | "<<top.Itr.ins<<" "<<top.Itr.PC<<std::endl;
 //            RF->show();
             if(top.type==toreg){

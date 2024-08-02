@@ -172,10 +172,10 @@ public:
     }
 
     void execute(ALU *alu,ReorderBuffer *RoB,CDB *cdb){//选出一条可以执行的指令，将计算结果交给RoB，并通知更新所有RS
-        if(cdb->num==1){
-            CDB_value newinf=cdb->update;
-            broadcast(newinf);
-        }
+//        if(cdb->num==1){
+//            CDB_value newinf=cdb->update;
+//            broadcast(newinf);
+//        }
         for(int i=0;i<RSsize;i++){
             if(rs[i].busy){//有指令
                 if(rs[i].qj==-1&&rs[i].qk==-1){//可以执行
