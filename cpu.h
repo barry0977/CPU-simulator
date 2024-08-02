@@ -74,8 +74,8 @@ public:
 //        IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
         IQ.execute(&RoB,&RS,&LSB,&RF,&cdb,&pre);
         int res=RoB.commit(&RF,mem,&cdb,&pre);
-        RS.execute(&alu,&RoB,&cdb);
         LSB.execute(mem,&RoB,&cdb);
+        RS.execute(&alu,&RoB,&cdb);
         if(res>=0){//如果发现预测错误
             flush(res);
         }
