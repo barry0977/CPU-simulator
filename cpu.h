@@ -40,20 +40,12 @@ public:
 //            std::cout<<"clk: "<<clk<<std::endl;
             clk++;
             execute();
-//            update();
 //            RF.show();
 //            RoB.show();
 //            RS.show();
 //            LSB.show();
-//            cdb.show();
             refresh();
         }
-    }
-
-    void update(){
-        RoB.update(&cdb,&RF);
-        RS.update(&cdb);
-        LSB.update(&cdb);
     }
 
     void refresh(){

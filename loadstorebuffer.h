@@ -20,15 +20,7 @@ public:
 
 public:
     void refresh(){
-//        if(cdb->num==1){
-//            CDB_value newinf=cdb->update;
-//            broadcast(newinf);
-//        }
-//        std::cout<<"更新前的LSB_list: "<<std::endl;
-//        show();
         LSB_list=LSB_list_next;
-//        std::cout<<"更新后的LSB_list: "<<std::endl;
-//        show();
     }
 
     void flush(){//清空LSB
@@ -76,7 +68,6 @@ public:
                 case Lw:
                 case Lbu:
                 case Lhu:{
-//                    std::cout<<Ins.PC<<" 获取依赖： "<<Ins.rs1<<" "<<RF->regs[Ins.rs1].rely<<std::endl;
                     if(!RF->regs[Ins.rs1].busy){//如果没有依赖，直接读取数值
                         tmp.vj=RF->regs[Ins.rs1].data;
                         tmp.qj=-1;
@@ -93,7 +84,6 @@ public:
                             tmp.qj=-1;
                         }
                     }
-//                    std::cout<<Ins.PC<<" 依赖为 "<<tmp.qj<<std::endl;
                     tmp.imm=Ins.imm;
                     break;
                 }
@@ -140,7 +130,6 @@ public:
                 default:
                     break;
             }
-//            std::cout<<"存入 LSB_list的单元为 "<<tmp.op<<" "<<tmp.vj<<" "<<tmp.qj<<" "<<tmp.vk<<" "<<tmp.qk<<std::endl;
             LSB_list_next.push(tmp);
         }
     }
@@ -163,12 +152,10 @@ public:
                 if(LSB_list_next[i].qj==res.RoB_index){//如果qj的依赖正好是广播的指令，则更新依赖
                     LSB_list_next[i].qj=-1;
                     LSB_list_next[i].vj=res.value;
-//                    std::cout<<LSB_list_next[i].op<<" "<<LSB_list_next[i].RoBindex<<" 更新依赖 \n";
                 }
                 if(LSB_list_next[i].qk==res.RoB_index){
                     LSB_list_next[i].qk=-1;
                     LSB_list_next[i].vk=res.value;
-//                    std::cout<<LSB_list_next[i].op<<" "<<LSB_list_next[i].RoBindex<<" 更新依赖 \n";
                 }
             }
         }else{
@@ -176,12 +163,10 @@ public:
                 if(LSB_list_next[i%LSBsize].qj==res.RoB_index){//如果qj的依赖正好是广播的指令，则更新依赖
                     LSB_list_next[i%LSBsize].qj=-1;
                     LSB_list_next[i%LSBsize].vj=res.value;
-//                    std::cout<<LSB_list_next[i].op<<" "<<LSB_list_next[i].RoBindex<<" 更新依赖 \n";
                 }
                 if(LSB_list_next[i%LSBsize].qk==res.RoB_index){
                     LSB_list_next[i%LSBsize].qk=-1;
                     LSB_list_next[i%LSBsize].vk=res.value;
-//                    std::cout<<LSB_list_next[i].op<<" "<<LSB_list_next[i].RoBindex<<" 更新依赖 \n";
                 }
             }
         }
@@ -200,11 +185,9 @@ public:
                 case Lw:
                 case Lbu:
                 case Lhu:{
-//                    std::cout<<"取出的单元为"<<obj.op<<" "<<obj.vj<<" "<<obj.qj<<" "<<obj.vk<<" "<<obj.qk<<std::endl;
                     if(obj.qj==-1){
                         int addr=obj.vj+obj.imm;
                         int result=mem->load(addr,obj.op);
-//                        std::cout<<"从 "<<addr<<" 处载入 "<<result<<"\n";
                         RoB->finish_calc(obj.RoBindex,result);
                         LSB_list_next.pop();
                     }

@@ -19,20 +19,7 @@ public:
     Queue<RoBentry,RoBsize>list;
 public:
     void refresh(){
-//        if(cdb->num==1){
-//            CDB_value newinf=cdb->update;
-//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value<<"\n";
-//            RF->update_data(newinf.index,newinf);
-//        }
         list=list_next;
-    }
-
-    void update(CDB *cdb,RegisterFile *RF){
-        if(cdb->num==1){
-            CDB_value newinf=cdb->update;
-//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value<<"\n";
-            RF->update_data(newinf.index,newinf);
-        }
     }
 
     bool available(){//是否可用
@@ -115,7 +102,6 @@ public:
     int commit(RegisterFile *RF,Memory *mem,CDB *cdb,Predictor *pre){
         if(cdb->num==1){
             CDB_value newinf=cdb->update;
-//            std::cout<<"更新 "<<newinf.index<<"号寄存器值为 "<<newinf.value<<"\n";
             RF->update_data(newinf.index,newinf);
         }
         if(list.empty()){//如果空则不会进行commit
@@ -124,7 +110,7 @@ public:
         RoBentry top=list.top();
         if(top.ready){
             list_next.pop();
-            cnt++;
+//            cnt++;
 //            std::cout<<"commit ----------------------------------------------------------------------------------\n";
 //            std::cout<<std::dec<<"pc="<<top.Itr.PC<<" type="<<InstrNames[top.Itr.ins]<<" rd="<<top.Itr.rd<<" rs1="<<top.Itr.rs1<<" rs2="<<top.Itr.rs2<<" imm="<<top.Itr.imm<<" "<<cnt<<std::endl;
 //            std::cout<<"commit | "<<top.Itr.ins<<" "<<top.Itr.PC<<std::endl;
@@ -170,21 +156,21 @@ public:
                 tmp.index=top.Itr.rd;
                 cdb->send(tmp);
             }else if(top.type==branch_){
-//                if(top.value==1){//如果需要跳转
-//                    if(top.isjump){//预测需要跳转
-//                        pre->update_predict(top.pc, true);
-//                    }else{//预测不需要跳转
-//                        pre->update_predict(top.pc, true);
-//                        return top.addr;
-//                    }
-//                }else{//如果不需要跳转
-//                    if(top.isjump){//预测需要跳转
-//                        pre->update_predict(top.pc, false);
-//                        return top.pc+4;
-//                    }else{//预测不需要跳转
-//                        pre->update_predict(top.pc, false);
-//                    }
-//                }
+                if(top.value==1){//如果需要跳转
+                    if(top.isjump){//预测需要跳转
+                        pre->update_predict(top.pc, true);
+                    }else{//预测不需要跳转
+                        pre->update_predict(top.pc, true);
+                        return top.addr;
+                    }
+                }else{//如果不需要跳转
+                    if(top.isjump){//预测需要跳转
+                        pre->update_predict(top.pc, false);
+                        return top.pc+4;
+                    }else{//预测不需要跳转
+                        pre->update_predict(top.pc, false);
+                    }
+                }
                 if(top.value==1){//需要跳转
                     return top.addr;//返回需要跳转的地址
                 }

@@ -57,20 +57,20 @@ public:
         }else if(Ins.ins==Jalr){
             pause=true;
         }else{
-//            RoBtype type= get_RoBtype(Ins.ins);
-//            if(type==branch_){
-//                bool tojump=pre->predict(PC);
-//                if(tojump){//预测跳转
-//                    Ins.isjump=true;
-//                    PC_next=Ins.PC+Ins.imm;//将PC设置为要跳转的地址
-//                }else{
-//                    Ins.isjump=false;
-//                    PC_next=PC+4;
-//                }
-//            }else{
-//                PC_next=PC+4;
-//            }
-            PC_next=PC+4;
+            RoBtype type= get_RoBtype(Ins.ins);
+            if(type==branch_){
+                bool tojump=pre->predict(PC);
+                if(tojump){//预测跳转
+                    Ins.isjump=true;
+                    PC_next=Ins.PC+Ins.imm;//将PC设置为要跳转的地址
+                }else{
+                    Ins.isjump=false;
+                    PC_next=PC+4;
+                }
+            }else{
+                PC_next=PC+4;
+            }
+//            PC_next=PC+4;
         }
         IQ_next.push(Ins);
     }
