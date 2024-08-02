@@ -37,13 +37,13 @@ public:
     void run(){
         int clk=0;
         while(true){
-            std::cout<<"clk: "<<clk<<std::endl;
+//            std::cout<<"clk: "<<clk<<std::endl;
             clk++;
             execute();
-            RF.show();
-            RoB.show();
-            RS.show();
-            LSB.show();
+//            RF.show();
+//            RoB.show();
+//            RS.show();
+//            LSB.show();
             refresh();
         }
     }
